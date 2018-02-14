@@ -25,6 +25,8 @@ public class MatrixView extends View {
 
     private Point offset;
 
+    private Point offsetPre;
+
     private Bitmap bitmap;
 
     private int bw, bh;
@@ -83,17 +85,17 @@ public class MatrixView extends View {
         center = new Point();
         center.set(bw / 2, bh / 2);
         offset = new Point();
+        offsetPre = new Point();
     }
 
-    public void translateBitmap(Canvas canvas){
-        Log.i("MatrixView","center:"+center.x+" "+center.y);
-        Log.i("MatrixView","offset:"+offset.x+" "+offset.y);
+    public void translateBitmap(Canvas canvas) {
+        Log.i("MatrixView", "center:" + center.x + " " + center.y);
+        Log.i("MatrixView", "distance:" + (center.x - offset.x) + " " + (center.y - offset.y));
+        Log.i("MatrixView", "offset:" + offset.x + " " + offset.y);
         float[] src = {center.x, center.y};
-        float[] dst = {center.x-offset.x, center.y-offset.y};
+        float[] dst = {center.x + offset.x, center.y + offset.y};
         matrix.setPolyToPoly(src, 0, dst, 0, 1);
         canvas.drawBitmap(bitmap, matrix, paint);
-        center.x =center.x-offset.x;
-        center.y = center.y-offset.y;
     }
 
     public void rotateBitmap(Canvas canvas) {
@@ -103,7 +105,7 @@ public class MatrixView extends View {
         canvas.drawBitmap(bitmap, matrix, paint);
     }
 
-    public void scaleBitmap(){
+    public void scaleBitmap() {
 
     }
 
@@ -130,8 +132,8 @@ public class MatrixView extends View {
 
 
                 //只让图片移动
-                offset.x = mDown.x-(int)event.getX();
-                offset.y = mDown.y-(int)event.getY();
+                offset.x = (int) event.getX() - mDown.x + offsetPre.x;
+                offset.y = (int) event.getY() - mDown.y + offsetPre.y;
                 invalidate();
 
                 break;
@@ -141,6 +143,8 @@ public class MatrixView extends View {
                 mDown.y = (int) event.getY();
                 break;
             case MotionEvent.ACTION_UP:
+                offsetPre.x = offset.x;
+                offsetPre.y = offset.y;
                 break;
         }
         return super.onTouchEvent(event);
